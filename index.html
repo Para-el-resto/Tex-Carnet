@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TEX // OPERACIÓN PERMISO B</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Setup modal -->
+  <div id="setup-modal" style="display:none;">
+    <div class="setup-box">
+      <div class="setup-title">TEX</div>
+      <div class="setup-sub">◈ INICIALIZACIÓN DEL SISTEMA ◈</div>
+      <div class="setup-field">
+        <label>NOMBRE DEL OPERADOR</label>
+        <input type="text" id="setup-name" value="Tex" placeholder="Tex" />
+      </div>
+      <div class="setup-field" style="background:rgba(79,195,161,0.06);border:1px solid rgba(79,195,161,0.2);padding:12px 14px;">
+        <div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--teal);letter-spacing:2px;margin-bottom:6px;">INICIO DEL PLAN</div>
+        <div style="font-family:var(--font-head);font-size:1rem;font-weight:600;color:var(--text-bright);" id="setup-date-display">—</div>
+        <div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--text-dim);margin-top:4px;">El plan arranca el próximo lunes. Sin excusas.</div>
+      </div>
+      <button class="btn large" id="setup-submit" style="margin-top:16px;">▶ INICIAR PROTOCOLO</button>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header id="app-header">
+    <div class="header-left">
+      <div class="header-logo" id="header-name" data-text="TEX">TEX</div>
+      <div class="header-subtitle">OPERACIÓN PERMISO B</div>
+    </div>
+    <div class="header-right">
+      <div class="mastery-rank" id="mastery-rank-display">
+        <div class="mastery-rank-label">RANGO</div>
+        <div class="mastery-rank-name" id="mastery-rank-name">Tenno Iniciado</div>
+        <div class="mastery-rank-bar"><div class="mastery-rank-fill" id="mastery-rank-fill" style="width:0%"></div></div>
+      </div>
+      <div class="header-streak">RACHA<span id="streak-val">0</span></div>
+    </div>
+  </header>
+
+  <!-- Nav -->
+  <nav id="app-nav">
+    <button class="nav-btn active" data-section="inicio">INICIO</button>
+    <button class="nav-btn" data-section="teoria">TEORÍA</button>
+    <button class="nav-btn" data-section="plan">PLAN</button>
+    <button class="nav-btn" data-section="pomodoro">FOCO</button>
+    <button class="nav-btn" data-section="test">TESTS</button>
+  </nav>
+
+  <main id="app-main">
+
+    <!-- ══ INICIO ══════════════════════════════════════════ -->
+    <section id="inicio" class="section active">
+      <div class="section-header">BRIEFING</div>
+      <div class="section-sub">◈ ESTADO DE LA MISIÓN</div>
+
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-value" id="stat-streak">0</div>
+          <div class="stat-label">Racha de sync</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value teal" id="stat-tests">0</div>
+          <div class="stat-label">Misiones completadas</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="stat-accuracy">—</div>
+          <div class="stat-label">Sincronía</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value teal" id="stat-pomodoros">0</div>
+          <div class="stat-label">Fragmentos Void</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="panel">
+        <div class="panel-title">◈ MISIÓN DE HOY</div>
+        <div class="today-theme" id="today-theme">—</div>
+        <div class="today-topics" id="today-topics"></div>
+        <div class="mt-16">
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" id="plan-progress-bar" style="width:0%"></div>
+          </div>
+          <div class="progress-label">
+            <span>Días completados del plan (8 semanas · 40 días)</span>
+            <span id="plan-progress-text">0 / 40</span>
+          </div>
+          <div class="progress-explain">Marca un día en el Plan cuando hayas estudiado ese día</div>
+        </div>
+      </div>
+
+      <div class="panel panel-teal">
+        <div class="panel-title teal">◎ RENDIMIENTO POR TEMA</div>
+        <div class="topic-results-grid" id="topic-performance-grid">
+          <div class="no-data">Completa tu primer test para ver estadísticas por tema</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">▣ TEORÍA DE HOY</div>
+        <div id="theory-content">
+          <div class="no-data">Teoría del día pendiente — se añadirá en theory.js</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ TEORÍA ═══════════════════════════════════════════ -->
+    <section id="teoria" class="section">
+      <div class="section-header">TEORÍA</div>
+      <div class="section-sub">◈ LECCIÓN DEL DÍA — SEMANA <span id="teoria-week-num">1</span></div>
+
+      <!-- Day selector -->
+      <div class="teoria-day-selector" id="teoria-day-selector"></div>
+
+      <!-- Week theme bar -->
+      <div class="teoria-week-bar" id="teoria-week-bar"></div>
+
+      <!-- Lesson content -->
+      <div id="teoria-content"></div>
+    </section>
+    <section id="plan" class="section">
+      <div class="section-header">PLAN</div>
+      <div class="section-sub">◈ CALENDARIO DE OPERACIONES — 8 SEMANAS</div>
+
+      <div class="plan-info-bar">
+        <div class="plan-info-text">
+          Inicio del plan: <strong id="plan-start-info">—</strong>
+          &nbsp;·&nbsp; Los viernes (★) son test semanales
+          &nbsp;·&nbsp; Los días futuros no se pueden marcar
+        </div>
+        <button class="btn small red" id="plan-reset-btn">↺ RESETEAR PROGRESO</button>
+      </div>
+
+      <div id="calendar-container"></div>
+    </section>
+
+    <!-- ══ POMODORO ════════════════════════════════════════ -->
+    <section id="pomodoro" class="section">
+      <div class="section-header">FOCO</div>
+      <div class="section-sub">◈ PROTOCOLO DE CONCENTRACIÓN</div>
+
+      <div class="panel pom-wrap">
+        <!-- Void energy rings animation -->
+        <div class="void-rings">
+          <div class="void-ring void-ring-1"></div>
+          <div class="void-ring void-ring-2"></div>
+          <div class="void-ring void-ring-3"></div>
+        </div>
+        <div class="void-particles">
+          <div class="vp"></div><div class="vp"></div><div class="vp"></div>
+          <div class="vp"></div><div class="vp"></div><div class="vp"></div>
+        </div>
+
+        <div class="pom-display">
+          <div class="pom-ring">
+            <svg width="160" height="160" viewBox="0 0 160 160">
+              <circle class="pom-ring-track" cx="80" cy="80" r="70" stroke-width="4"/>
+              <circle class="pom-ring-fill" id="pom-ring-fill" cx="80" cy="80" r="70"
+                stroke-width="4"
+                stroke-dasharray="439.82"
+                stroke-dashoffset="0"/>
+            </svg>
+            <div class="pom-timer-inner">
+              <div class="pom-timer" id="pom-timer">25:00</div>
+            </div>
+          </div>
+          <div class="pom-label" id="pom-label">TRABAJO — LISTO PARA COMENZAR</div>
+          <div class="pom-controls">
+            <button class="btn large" id="pom-start-btn">▶ INICIAR</button>
+            <button class="btn large teal" id="pom-reset-btn">↺ RESET</button>
+          </div>
+          <div class="pom-count">
+            Hoy: <span id="pom-count-today">0</span> &nbsp;|&nbsp; Total: <span id="pom-count-total">0</span>
+          </div>
+        </div>
+
+        <!-- Misión del día + racha -->
+        <div class="pom-mission">
+          <div>
+            <div class="pom-mission-label">◈ MISIÓN DE HOY</div>
+            <div class="pom-mission-text" id="pom-mission-text">—</div>
+          </div>
+          <div class="pom-streak-badge">
+            <div>
+              <div id="pom-streak-num" style="font-family:var(--font-head);font-size:1.5rem;font-weight:700;color:var(--gold);line-height:1;text-align:right;">0</div>
+              <div class="pom-streak-label">días de racha</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="reward-container" style="display:none;">
+        <div class="reward-box" id="reward-box">
+          <div class="reward-label">◈ MENSAJE DEL OPERADOR</div>
+          <div class="reward-text" id="reward-text"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ TESTS ═══════════════════════════════════════════ -->
+    <section id="test" class="section">
+      <div class="section-header">TESTS</div>
+      <div class="section-sub">◈ SIMULACROS DGT — PERMISO B · 30 MINUTOS · 65% PARA APROBAR</div>
+
+      <!-- Selector -->
+      <div id="test-selector">
+
+        <!-- Test del día -->
+        <div class="daily-test-block panel" id="daily-test-panel">
+          <div class="void-scan"></div>
+          <div class="panel-title">◈ TEST DEL DÍA</div>
+          <div id="alerta-container"></div>
+          <button class="btn large" id="btn-test-daily">▶ TEST DEL DÍA (20 preguntas)</button>
+          <div class="daily-test-subtitle" id="daily-test-subtitle"></div>
+        </div>
+
+        <div class="test-mode-separator"><span>OTROS MODOS</span></div>
+
+        <div class="flex-row" style="margin-bottom:20px;">
+          <button class="btn large teal" id="btn-test-full">◈ TEST COMPLETO LIBRE (30 preguntas)</button>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title teal">◆ TEST POR TEMA</div>
+          <div class="topic-selector-grid" id="topic-selector-grid"></div>
+          <div class="mt-16">
+            <button class="btn" id="btn-test-topic" disabled>▶ INICIAR TEST DEL TEMA</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">▣ HISTORIAL DE TESTS</div>
+          <div id="history-container">
+            <div class="no-data">Aún no hay tests completados</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Test en curso -->
+      <div id="test-container" style="display:none;">
+        <div class="test-header-row">
+          <div class="test-progress-info" id="test-progress-info">Pregunta 1 / 20</div>
+          <div class="test-countdown-wrap">
+            <div class="test-countdown-label">TIEMPO</div>
+            <div class="test-countdown" id="test-countdown">30:00</div>
+          </div>
+          <button class="btn small red" id="btn-abort-test">✕ ABANDONAR</button>
+        </div>
+        <div class="progress-bar-wrap" style="margin-bottom:18px;">
+          <div class="progress-bar-fill teal" id="test-progress-bar" style="width:2%"></div>
+        </div>
+        <div id="question-area"></div>
+        <div class="test-nav" id="test-nav">
+          <button class="btn" id="btn-next-q" style="display:none;">SIGUIENTE ▶</button>
+        </div>
+      </div>
+
+      <!-- Resultados -->
+      <div id="test-results-screen" style="display:none;">
+        <div class="panel mission-result-wrap">
+          <div class="test-results">
+            <div class="result-mission-tag" id="result-mission-tag">◈ INFORME DE MISIÓN</div>
+            <div class="result-score" id="result-score">—</div>
+            <div class="result-label" id="result-label">correctas</div>
+            <div class="result-verdict" id="result-verdict">—</div>
+            <div class="flex-row" style="justify-content:center;margin-top:16px;">
+              <button class="btn large" id="btn-retry-test">↺ REPETIR MISIÓN</button>
+              <button class="btn large teal" id="btn-back-tests">◈ VOLVER AL HANGAR</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel panel-teal">
+          <div class="panel-title teal">◎ RESULTADOS POR TEMA</div>
+          <div class="topic-results-grid" id="result-by-topic"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">▣ REVISIÓN COMPLETA</div>
+          <div id="review-container"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="data.js"></script>
+  <script src="theory.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
