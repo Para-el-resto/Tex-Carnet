@@ -191,37 +191,68 @@ const THEORY_MODULES = [
 
 <div class="tv-senales-grid">
   <div class="tv-senal-card peligro">
-    <div class="tv-senal-shape triangle-red">▲</div>
+    <div class="tv-senal-shape">
+      <svg width="64" height="58" viewBox="0 0 64 58" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="32,4 62,54 2,54" fill="white" stroke="#cc0000" stroke-width="5" stroke-linejoin="round"/>
+        <text x="32" y="48" text-anchor="middle" font-size="28" font-weight="900" fill="#cc0000" font-family="Arial">!</text>
+      </svg>
+    </div>
     <div class="tv-senal-name">PELIGRO</div>
     <div class="tv-senal-desc">Triángulo borde rojo. Advierte de un riesgo próximo. No prohíbe ni obliga — solo alerta.</div>
     <div class="tv-senal-examples">Curva, paso nivel, niebla, obras...</div>
   </div>
   <div class="tv-senal-card prohibicion">
-    <div class="tv-senal-shape circle-red">○</div>
+    <div class="tv-senal-shape">
+      <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="30" cy="30" r="27" fill="white" stroke="#cc0000" stroke-width="5"/>
+        <text x="30" y="42" text-anchor="middle" font-size="30" font-weight="900" fill="#cc0000" font-family="Arial">80</text>
+      </svg>
+    </div>
     <div class="tv-senal-name">PROHIBICIÓN</div>
     <div class="tv-senal-desc">Círculo borde rojo, fondo blanco. Lo que NO debes hacer: límite velocidad, no adelantar...</div>
     <div class="tv-senal-examples">Velocidad máx, prohibido adelantar...</div>
   </div>
   <div class="tv-senal-card obligacion">
-    <div class="tv-senal-shape circle-blue">●</div>
+    <div class="tv-senal-shape">
+      <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="30" cy="30" r="27" fill="#0033aa"/>
+        <polygon points="30,14 42,34 36,34 36,46 24,46 24,34 18,34" fill="white"/>
+      </svg>
+    </div>
     <div class="tv-senal-name">OBLIGACIÓN</div>
     <div class="tv-senal-desc">Círculo fondo azul. Lo que SÍ debes hacer obligatoriamente.</div>
     <div class="tv-senal-examples">Dirección obligatoria, velocidad mínima...</div>
   </div>
   <div class="tv-senal-card stop">
-    <div class="tv-senal-shape octagon">⬡</div>
+    <div class="tv-senal-shape">
+      <svg width="62" height="62" viewBox="0 0 62 62" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="20,3 42,3 59,20 59,42 42,59 20,59 3,42 3,20" fill="#cc0000" stroke="#cc0000" stroke-width="2" stroke-linejoin="round"/>
+        <polygon points="22,6 40,6 56,22 56,40 40,56 22,56 6,40 6,22" fill="none" stroke="white" stroke-width="2"/>
+        <text x="31" y="38" text-anchor="middle" font-size="14" font-weight="900" fill="white" font-family="Arial" letter-spacing="1">STOP</text>
+      </svg>
+    </div>
     <div class="tv-senal-name">STOP</div>
     <div class="tv-senal-desc">Octogonal roja — la única. Detención TOTAL siempre, aunque no haya tráfico.</div>
     <div class="tv-senal-examples">La única señal octogonal del código</div>
   </div>
   <div class="tv-senal-card ceda">
-    <div class="tv-senal-shape triangle-inv">▽</div>
+    <div class="tv-senal-shape">
+      <svg width="64" height="58" viewBox="0 0 64 58" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="32,54 62,4 2,4" fill="white" stroke="#cc0000" stroke-width="5" stroke-linejoin="round"/>
+        <polygon points="32,47 55,9 9,9" fill="none" stroke="#cc0000" stroke-width="2.5" stroke-linejoin="round"/>
+      </svg>
+    </div>
     <div class="tv-senal-name">CEDA EL PASO</div>
     <div class="tv-senal-desc">Triángulo invertido. Ceder preferencia. Solo detenerse si hay vehículos con prioridad.</div>
     <div class="tv-senal-examples">No siempre para — solo si hay tráfico</div>
   </div>
   <div class="tv-senal-card indicacion">
-    <div class="tv-senal-shape rect-blue">▬</div>
+    <div class="tv-senal-shape">
+      <svg width="70" height="52" viewBox="0 0 70 52" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="66" height="48" rx="5" fill="#0033aa"/>
+        <text x="35" y="34" text-anchor="middle" font-size="26" fill="white" font-family="Arial">→</text>
+      </svg>
+    </div>
     <div class="tv-senal-name">INDICACIÓN</div>
     <div class="tv-senal-desc">Cuadrado o rectángulo, fondo azul o verde. Informa — no obliga ni prohíbe.</div>
     <div class="tv-senal-examples">Destinos, servicios, información</div>

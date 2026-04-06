@@ -1184,13 +1184,8 @@ body::before {
   transition: all 0.2s;
 }
 .tv-senal-card:hover { background: rgba(255,255,255,0.04); }
-.tv-senal-shape { font-size: 2rem; margin-bottom: 6px; display: block; }
-.triangle-red { color: #e05252; }
-.circle-red { color: #e05252; font-size: 1.8rem; border: 3px solid #e05252; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-size: 1rem; }
-.circle-blue { color: #4488cc; width: 36px; height: 36px; border-radius: 50%; background: #4488cc; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; }
-.octagon { color: #e05252; font-size: 1.6rem; }
-.triangle-inv { color: #e05252; font-size: 1.8rem; transform: rotate(180deg); display: inline-block; }
-.rect-blue { width: 40px; height: 24px; background: #4488cc; margin: 0 auto 8px; display: block; }
+.tv-senal-shape { display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; width: 70px; height: 62px; }
+.tv-senal-shape svg { display: block; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
 .tv-senal-card.stop { border-color: rgba(192,57,43,0.2); }
 .tv-senal-card.stop .tv-senal-name { color: #e05252; }
 .tv-senal-name { font-family: var(--font-head); font-size: 0.72rem; font-weight: 700; color: var(--text-bright); letter-spacing: 2px; margin-bottom: 5px; }
