@@ -1562,3 +1562,159 @@ body::before {
   background: rgba(79,195,161,0.04);
   margin-bottom: 16px;
 }
+
+/* ══ TEORÍA — layout Codex Warframe ═══════════════════════════ */
+.teoria-codex {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 0;
+  min-height: 500px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+}
+@media (max-width: 600px) {
+  .teoria-codex { grid-template-columns: 1fr; }
+  .codex-sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+}
+
+/* Sidebar */
+.codex-sidebar {
+  border-right: 1px solid var(--border);
+  background: var(--bg2);
+  display: flex;
+  flex-direction: column;
+}
+.codex-sidebar-title {
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  color: var(--text-dim);
+  letter-spacing: 3px;
+  padding: 12px 14px 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  text-transform: uppercase;
+}
+.codex-entry {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  transition: all 0.15s;
+  position: relative;
+}
+.codex-entry:hover { background: rgba(200,155,60,0.05); border-left-color: var(--gold-dim); }
+.codex-entry.active {
+  background: rgba(200,155,60,0.08);
+  border-left-color: var(--gold);
+}
+.codex-entry.visited:not(.active) { border-left-color: rgba(79,195,161,0.4); }
+.codex-entry-num {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  min-width: 18px;
+  flex-shrink: 0;
+}
+.codex-entry.active .codex-entry-num { color: var(--gold); }
+.codex-entry-icon {
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  color: var(--text-dim);
+  transition: color 0.15s;
+}
+.codex-entry.active .codex-entry-icon { color: var(--gold); }
+.codex-entry.visited:not(.active) .codex-entry-icon { color: var(--teal); }
+.codex-entry-name {
+  font-family: var(--font-head);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  line-height: 1.2;
+  transition: color 0.15s;
+}
+.codex-entry.active .codex-entry-name { color: var(--gold); }
+.codex-entry.visited:not(.active) .codex-entry-name { color: var(--text); }
+.codex-entry-tick {
+  margin-left: auto;
+  font-size: 0.6rem;
+  color: var(--teal);
+  flex-shrink: 0;
+}
+/* Scan pulse on active entry */
+.codex-entry.active::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0; left: 0;
+  width: 3px;
+  background: var(--gold);
+  box-shadow: 0 0 8px rgba(200,155,60,0.6);
+  animation: codex-pulse 2s ease-in-out infinite;
+}
+@keyframes codex-pulse {
+  0%,100% { box-shadow: 0 0 4px rgba(200,155,60,0.4); }
+  50%      { box-shadow: 0 0 12px rgba(200,155,60,0.8); }
+}
+
+/* Content area */
+.codex-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.codex-module-header {
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(200,155,60,0.03);
+}
+.codex-module-tag {
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  color: var(--text-dim);
+  letter-spacing: 3px;
+  margin-bottom: 4px;
+}
+.codex-module-title {
+  font-family: var(--font-head);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 2px;
+  line-height: 1.1;
+  margin-bottom: 3px;
+}
+.codex-module-sub {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+.codex-section-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  background: var(--bg2);
+}
+.codex-tab {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 1px;
+  padding: 9px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+.codex-tab:hover { color: var(--text); background: rgba(255,255,255,0.02); }
+.codex-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+.codex-section-body {
+  padding: 18px;
+  overflow-y: auto;
+  flex: 1;
+}

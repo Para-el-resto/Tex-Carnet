@@ -733,7 +733,7 @@ function showPomReward() {
   document.getElementById('reward-text').textContent = WARFRAME_MESSAGES[(STATE.pomodorosTotal || 1) % WARFRAME_MESSAGES.length];
 }
 
-// ── TEORÍA ────────────────────────────────────────────────────
+// ── TEORÍA — layout Codex Warframe ────────────────────────────
 let teoriaActiveModule = 0;
 let teoriaActiveSection = 0;
 
@@ -752,68 +752,65 @@ function renderTeoria(moduleIdx, sectionIdx) {
 
   const el = document.getElementById('teoria-content');
   if (!el) return;
-  el.innerHTML = '';
 
-  // Module nav
-  const moduleNav = document.createElement('div');
-  moduleNav.className = 'teoria-module-nav';
-  THEORY_MODULES.forEach((mod, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'tm-btn' + (i === teoriaActiveModule ? ' active' : '');
-    btn.innerHTML = `
-      <div class="tm-btn-num">MÓDULO ${mod.num}</div>
-      <span class="tm-btn-icon">${mod.icon}</span>
-      <div class="tm-btn-title">${mod.title}</div>
-    `;
-    btn.addEventListener('click', () => {
-      teoriaActiveSection = 0;
-      renderTeoria(i, 0);
-    });
-    moduleNav.appendChild(btn);
-  });
-  el.appendChild(moduleNav);
-
+  // Construye el layout Codex completo
   const mod = THEORY_MODULES[teoriaActiveModule];
-  if (!mod) return;
+  const sec = mod?.sections[teoriaActiveSection] || mod?.sections[0];
+  const viewed = STATE.modulesViewed || [];
 
-  // Module header
-  const hdr = document.createElement('div');
-  hdr.className = 'tv-module-header';
-  hdr.innerHTML = `
-    <div class="tv-module-icon">${mod.icon}</div>
-    <div>
-      <div class="tv-module-num">MÓDULO ${mod.num} — SEMANA ${mod.week}</div>
-      <div class="tv-module-title">${mod.title}</div>
-      <div class="tv-module-subtitle">${mod.subtitle}</div>
+  el.innerHTML = `
+    <div class="teoria-codex">
+      <!-- Sidebar -->
+      <div class="codex-sidebar">
+        <div class="codex-sidebar-title">CÓDICE DGT</div>
+        ${THEORY_MODULES.map((m, i) => {
+          const isActive = i === teoriaActiveModule;
+          const isVisited = viewed.includes(m.id);
+          return `<div class="codex-entry${isActive ? ' active' : ''}${isVisited ? ' visited' : ''}" data-mod="${i}">
+            <span class="codex-entry-num">0${m.num}</span>
+            <span class="codex-entry-icon">${m.icon}</span>
+            <span class="codex-entry-name">${m.title}</span>
+            ${isVisited && !isActive ? '<span class="codex-entry-tick">✓</span>' : ''}
+          </div>`;
+        }).join('')}
+      </div>
+
+      <!-- Content -->
+      <div class="codex-content">
+        <div class="codex-module-header">
+          <div class="codex-module-tag">MÓDULO ${mod.num} — SEMANA ${mod.week}</div>
+          <div class="codex-module-title">${mod.title}</div>
+          <div class="codex-module-sub">${mod.subtitle}</div>
+        </div>
+
+        ${mod.sections.length > 1 ? `
+        <div class="codex-section-tabs">
+          ${mod.sections.map((s, si) =>
+            `<button class="codex-tab${si === teoriaActiveSection ? ' active' : ''}" data-si="${si}">${s.title}</button>`
+          ).join('')}
+        </div>` : ''}
+
+        <div class="codex-section-body">
+          ${sec ? sec.content : ''}
+        </div>
+      </div>
     </div>
   `;
-  el.appendChild(hdr);
 
-  // Section tabs
-  if (mod.sections.length > 1) {
-    const tabs = document.createElement('div');
-    tabs.className = 'tv-section-tabs';
-    mod.sections.forEach((sec, si) => {
-      const tab = document.createElement('button');
-      tab.className = 'tv-tab' + (si === teoriaActiveSection ? ' active' : '');
-      tab.textContent = sec.title;
-      tab.addEventListener('click', () => renderTeoria(teoriaActiveModule, si));
-      tabs.appendChild(tab);
+  // Eventos sidebar
+  el.querySelectorAll('.codex-entry').forEach(entry => {
+    entry.addEventListener('click', () => {
+      teoriaActiveSection = 0;
+      renderTeoria(parseInt(entry.dataset.mod), 0);
     });
-    el.appendChild(tabs);
-  }
+  });
 
-  // Section content
-  const sec = mod.sections[teoriaActiveSection] || mod.sections[0];
-  if (sec) {
-    const content = document.createElement('div');
-    content.className = 'tv-section-content';
-    content.innerHTML = sec.content;
-    el.appendChild(content);
-  }
-
-  // Scroll to top of section
-  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Eventos tabs
+  el.querySelectorAll('.codex-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      renderTeoria(teoriaActiveModule, parseInt(tab.dataset.si));
+    });
+  });
 }
 function renderTests() {
   buildTopicSelector();
