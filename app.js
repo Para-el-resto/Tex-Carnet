@@ -269,7 +269,6 @@ function getDailyInfo() {
 function renderInicio() {
   document.getElementById('streak-val').textContent = STATE.streak || 0;
   document.getElementById('stat-streak').textContent = STATE.streak || 0;
-  // "Módulos estudiados" — unique modules ever visited
   const modulesViewed = STATE.modulesViewed ? STATE.modulesViewed.length : 0;
   document.getElementById('stat-tests').textContent = modulesViewed;
   document.getElementById('stat-pomodoros').textContent = STATE.pomodorosTotal || 0;
@@ -278,8 +277,20 @@ function renderInicio() {
     : '—';
   renderTodayBriefing();
   renderPlanProgress();
-  renderTopicPerformance();
-  renderTheoryPlaceholder();
+  renderOrdisTransmission();
+  renderModMap();
+
+  // Botón IR A TEORÍA en Misión de hoy
+  const btn = document.getElementById('btn-ir-teoria');
+  if (btn) {
+    btn.onclick = () => {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelector('[data-section="teoria"]').classList.add('active');
+      document.getElementById('teoria').classList.add('active');
+      renderTeoria();
+    };
+  }
 }
 
 function renderTodayBriefing() {
@@ -406,7 +417,90 @@ function renderTheoryPlaceholder() {
   });
 }
 
-// ── PLAN ──────────────────────────────────────────────────────
+// ── ORDIS TRANSMISSION ────────────────────────────────────────
+const ORDIS_MESSAGES = [
+  'Operador. Tus procesos de aprendizaje generan una sincronía de datos... inusualmente eficiente. Ordis... aprueba.',
+  'Los protocolos viales están siendo integrados en tu memoria táctica. Pronto serán instinto, Tenno.',
+  'Alerta de sistema: la procrastinación ha sido detectada como amenaza de nivel GRINEER. Iniciando contramedidas...',
+  'El examen teórico es simplemente otro simulacro del Cetus. Tú ya sabes cómo funciona, Operador.',
+  'Ordis ha calculado que completar el plan aumenta la probabilidad de aprobar un 847%. Los números... no mienten.',
+  'Las señales de tráfico son como los hologramas del Relé. Aprende el código y navega sin fallos.',
+  '¿Sabes qué distingue a un Tenno Maestro de un Novicio del Void? La disciplina. Y conocer los límites de velocidad.',
+  'Recuerda, Operador: el alcohol reduce los reflejos igual que el gas somnífero Corpus. Nunca en misión.',
+  'El Códice de la DGT ha sido asimilado. Solo falta activar el protocolo de práctica.',
+  'Ordis detiene el procesamiento de otras tareas para asegurarse de que estudias hoy. Por tu bien, claro.',
+];
+
+let ordisInterval = null;
+let ordisIndex = 0;
+let ordisTyping = false;
+
+function renderOrdisTransmission() {
+  const el = document.getElementById('ordis-text');
+  if (!el) return;
+  if (ordisInterval) clearInterval(ordisInterval);
+
+  ordisIndex = Math.floor(Math.random() * ORDIS_MESSAGES.length);
+  typeOrdisMessage(el);
+
+  ordisInterval = setInterval(() => {
+    ordisIndex = (ordisIndex + 1) % ORDIS_MESSAGES.length;
+    typeOrdisMessage(el);
+  }, 9000);
+}
+
+function typeOrdisMessage(el) {
+  if (!el) return;
+  const msg = ORDIS_MESSAGES[ordisIndex];
+  let i = 0;
+  el.textContent = '';
+  if (ordisTyping) return;
+  ordisTyping = true;
+  const t = setInterval(() => {
+    if (i < msg.length) {
+      el.textContent += msg[i];
+      i++;
+    } else {
+      clearInterval(t);
+      ordisTyping = false;
+    }
+  }, 28);
+}
+
+// ── MAPA DE MÓDULOS ───────────────────────────────────────────
+function renderModMap() {
+  const grid = document.getElementById('modmap-grid');
+  if (!grid || typeof THEORY_MODULES === 'undefined') return;
+  const info = getCurrentWeekInfo();
+  const currentWeek = info ? info.weekIndex + 1 : 1;
+  const viewed = STATE.modulesViewed || [];
+
+  grid.innerHTML = '';
+  THEORY_MODULES.forEach((mod, i) => {
+    const isVisited = viewed.includes(mod.id);
+    const isCurrent = mod.week === currentWeek;
+    const item = document.createElement('div');
+    item.className = 'modmap-item' + (isVisited ? ' visited' : '') + (isCurrent ? ' current' : '');
+    item.innerHTML = `
+      <div class="modmap-icon">${mod.icon}</div>
+      <div class="modmap-body">
+        <div class="modmap-num">MÓDULO ${mod.num}</div>
+        <div class="modmap-title">${mod.title}</div>
+      </div>
+      <div class="modmap-status">${isVisited ? '✓ VISTO' : isCurrent ? '◈ ACTIVO' : '○'}</div>
+    `;
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelector('[data-section="teoria"]').classList.add('active');
+      document.getElementById('teoria').classList.add('active');
+      renderTeoria(i, 0);
+    });
+    grid.appendChild(item);
+  });
+}
+
+
 function renderPlan() {
   const infoEl = document.getElementById('plan-start-info');
   if (infoEl && STATE.planStart) infoEl.textContent = STATE.planStart;

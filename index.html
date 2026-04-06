@@ -78,6 +78,7 @@
 
       <div class="divider"></div>
 
+      <!-- Misión de hoy -->
       <div class="panel">
         <div class="panel-title">◈ MISIÓN DE HOY</div>
         <div class="today-theme" id="today-theme">—</div>
@@ -90,21 +91,51 @@
             <span>Días completados del plan (8 semanas · 40 días)</span>
             <span id="plan-progress-text">0 / 40</span>
           </div>
-          <div class="progress-explain">Marca un día en el Plan cuando hayas estudiado ese día</div>
+        </div>
+        <div class="mision-cta">
+          <button class="btn large teal" id="btn-ir-teoria">▶ IR A TEORÍA</button>
         </div>
       </div>
 
-      <div class="panel panel-teal">
-        <div class="panel-title teal">◎ RENDIMIENTO POR TEMA</div>
-        <div class="topic-results-grid" id="topic-performance-grid">
-          <div class="no-data">Completa tu primer test para ver estadísticas por tema</div>
+      <!-- Transmisión de Ordis -->
+      <div class="panel ordis-panel" id="ordis-panel">
+        <div class="ordis-bg"></div>
+        <div class="ordis-inner">
+          <div class="ordis-header">
+            <div class="ordis-icon">
+              <svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="18,2 34,10 34,26 18,34 2,26 2,10" fill="none" stroke="#c89b3c" stroke-width="1.5"/>
+                <polygon points="18,7 29,13 29,23 18,29 7,23 7,13" fill="none" stroke="#4fc3a1" stroke-width="1"/>
+                <circle cx="18" cy="18" r="4" fill="#c89b3c"/>
+                <line x1="18" y1="7" x2="18" y2="14" stroke="#c89b3c" stroke-width="1"/>
+                <line x1="18" y1="22" x2="18" y2="29" stroke="#c89b3c" stroke-width="1"/>
+                <line x1="7" y1="18" x2="14" y2="18" stroke="#c89b3c" stroke-width="1"/>
+                <line x1="22" y1="18" x2="29" y2="18" stroke="#c89b3c" stroke-width="1"/>
+              </svg>
+            </div>
+            <div class="ordis-title-wrap">
+              <div class="ordis-from">TRANSMISIÓN ENTRANTE</div>
+              <div class="ordis-name">O R D I S</div>
+            </div>
+            <div class="ordis-signal">
+              <div class="ordis-dot"></div>
+              <div class="ordis-dot"></div>
+              <div class="ordis-dot"></div>
+            </div>
+          </div>
+          <div class="ordis-message" id="ordis-message">
+            <span id="ordis-text"></span><span class="ordis-cursor">▌</span>
+          </div>
         </div>
       </div>
 
+      <!-- Mapa de misiones — progreso de módulos -->
       <div class="panel">
-        <div class="panel-title">▣ TEORÍA DE HOY</div>
-        <div id="theory-content"></div>
+        <div class="panel-title">◈ MAPA DE DESPLIEGUE</div>
+        <div class="section-sub" style="margin-bottom:12px;">◈ PROGRESO POR MÓDULO</div>
+        <div class="modmap-grid" id="modmap-grid"></div>
       </div>
+
     </section>
 
     <!-- ══ TEORÍA ═══════════════════════════════════════════ -->
