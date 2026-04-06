@@ -47,7 +47,6 @@
     <button class="nav-btn active" data-section="inicio">INICIO</button>
     <button class="nav-btn" data-section="teoria">TEORÍA</button>
     <button class="nav-btn" data-section="plan">PLAN</button>
-    <button class="nav-btn" data-section="pomodoro">FOCO</button>
   </nav>
 
   <main id="app-main">
@@ -97,6 +96,14 @@
         </div>
       </div>
 
+      <!-- Misiones de combate diarias -->
+      <div class="panel combat-panel">
+        <div class="panel-title">⚔ MISIONES DE COMBATE DIARIAS</div>
+        <div class="combat-sub">Mínimo 3 tests en tu app de la autoescuela. Márcalos cuando los hagas.</div>
+        <div class="combat-tests" id="combat-tests"></div>
+        <div class="combat-footer" id="combat-footer"></div>
+      </div>
+
       <!-- Transmisión de Ordis -->
       <div class="panel ordis-panel" id="ordis-panel">
         <div class="ordis-bg"></div>
@@ -129,12 +136,6 @@
         </div>
       </div>
 
-      <!-- Mapa de misiones — progreso de módulos -->
-      <div class="panel">
-        <div class="panel-title">◈ MAPA DE DESPLIEGUE</div>
-        <div class="section-sub" style="margin-bottom:12px;">◈ PROGRESO POR MÓDULO</div>
-        <div class="modmap-grid" id="modmap-grid"></div>
-      </div>
 
     </section>
 
@@ -155,6 +156,9 @@
           &nbsp;·&nbsp; Los días futuros no se pueden marcar
         </div>
         <button class="btn small red" id="plan-reset-btn">↺ RESETEAR PROGRESO</button>
+      </div>
+      <div class="plan-note">
+        El plan es una guía — si en un día tienes tiempo y ganas, cubre más de un módulo. Nadie te para.
       </div>
 
       <div id="calendar-container"></div>

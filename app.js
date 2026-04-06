@@ -13,6 +13,9 @@ let STATE = {
   streak: 0,
   lastStreakDate: '',
   lastDailyCompleted: '',
+  combatDone: [false, false, false],
+  combatDate: '',
+  modulesViewed: [],
 };
 
 let currentTest = {
@@ -278,6 +281,7 @@ function renderInicio() {
   renderTodayBriefing();
   renderPlanProgress();
   renderOrdisTransmission();
+  renderCombatTests();
   renderModMap();
 
   // Botón IR A TEORÍA en Misión de hoy
@@ -417,7 +421,64 @@ function renderTheoryPlaceholder() {
   });
 }
 
-// ── ORDIS TRANSMISSION ────────────────────────────────────────
+// ── MISIONES DE COMBATE (tests diarios) ──────────────────────
+const COMBAT_LABELS = [
+  { title: 'TEST 1', sub: 'Abre tu app de la autoescuela y completa 1 test' },
+  { title: 'TEST 2', sub: 'Segundo test — sin mirar las respuestas antes' },
+  { title: 'TEST 3', sub: 'Tercer test — este es el que consolida' },
+];
+
+function renderCombatTests() {
+  const grid = document.getElementById('combat-tests');
+  const footer = document.getElementById('combat-footer');
+  if (!grid) return;
+
+  // Reset si es un día nuevo
+  const today = todayStr();
+  if (STATE.combatDate !== today) {
+    STATE.combatDone = [false, false, false];
+    STATE.combatDate = today;
+    saveState();
+  }
+  if (!STATE.combatDone) STATE.combatDone = [false, false, false];
+
+  grid.innerHTML = '';
+  COMBAT_LABELS.forEach((item, i) => {
+    const done = STATE.combatDone[i];
+    const el = document.createElement('div');
+    el.className = 'combat-test-item' + (done ? ' done' : '');
+    el.innerHTML = `
+      <div class="combat-checkbox">${done ? '✓' : ''}</div>
+      <div class="combat-test-label">
+        <div class="combat-test-title">${item.title}</div>
+        <div class="combat-test-sub">${item.sub}</div>
+      </div>
+    `;
+    el.addEventListener('click', () => {
+      STATE.combatDone[i] = !STATE.combatDone[i];
+      saveState();
+      renderCombatTests();
+    });
+    grid.appendChild(el);
+  });
+
+  // Footer
+  const done = STATE.combatDone.filter(Boolean).length;
+  if (footer) {
+    if (done === 0) {
+      footer.style.color = 'var(--text-dim)';
+      footer.textContent = '○  Sin misiones completadas hoy';
+    } else if (done < 3) {
+      footer.style.color = 'var(--gold)';
+      footer.textContent = `◈  ${done}/3 completados — sigue, Tenno`;
+    } else {
+      footer.style.color = 'var(--teal)';
+      footer.textContent = '✓  MISIÓN COMPLETADA — 3 tests hechos hoy';
+    }
+  }
+}
+
+
 const ORDIS_MESSAGES = [
   'Operador. Tus procesos de aprendizaje generan una sincronía de datos... inusualmente eficiente. Ordis... aprueba.',
   'Los protocolos viales están siendo integrados en tu memoria táctica. Pronto serán instinto, Tenno.',

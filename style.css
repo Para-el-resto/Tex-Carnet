@@ -1465,3 +1465,100 @@ body::before {
 .modmap-item.visited .modmap-status { color: var(--teal); }
 .modmap-item.current .modmap-status { color: var(--gold); }
 .modmap-item:not(.visited):not(.current) .modmap-status { color: var(--text-dim); }
+
+/* ── Misiones de combate diarias ──────────────────────────── */
+.combat-panel {
+  border-color: rgba(79,195,161,0.2) !important;
+}
+.combat-sub {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+}
+.combat-tests {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 12px;
+}
+.combat-test-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s;
+  clip-path: polygon(5px 0, 100% 0, calc(100% - 5px) 100%, 0 100%);
+}
+.combat-test-item:hover {
+  background: rgba(79,195,161,0.05);
+  border-color: rgba(79,195,161,0.2);
+}
+.combat-test-item.done {
+  background: rgba(79,195,161,0.08);
+  border-color: rgba(79,195,161,0.3);
+}
+.combat-checkbox {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  font-size: 0.75rem;
+  color: transparent;
+}
+.combat-test-item.done .combat-checkbox {
+  border-color: var(--teal);
+  background: rgba(79,195,161,0.15);
+  color: var(--teal);
+}
+.combat-test-label {
+  flex: 1;
+}
+.combat-test-title {
+  font-family: var(--font-head);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text);
+  transition: color 0.2s;
+}
+.combat-test-item.done .combat-test-title {
+  color: var(--teal);
+}
+.combat-test-sub {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+.combat-test-item.done .combat-test-sub {
+  color: rgba(79,195,161,0.6);
+}
+.combat-footer {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 1px;
+  min-height: 1.2em;
+}
+
+/* ── Plan note ─────────────────────────────────────────────── */
+.plan-note {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--teal);
+  letter-spacing: 1px;
+  padding: 8px 14px;
+  border-left: 2px solid var(--teal);
+  background: rgba(79,195,161,0.04);
+  margin-bottom: 16px;
+}
