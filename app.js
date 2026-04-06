@@ -115,6 +115,19 @@ function saveState() { localStorage.setItem('tex_permiso_state', JSON.stringify(
 function loadState() {
   const raw = localStorage.getItem('tex_permiso_state');
   if (raw) try { STATE = { ...STATE, ...JSON.parse(raw) }; } catch(e) {}
+
+  // Parche: si el plan empieza exactamente 7 días después de hoy y hoy es lunes,
+  // significa que se configuró un lunes y asignó el lunes siguiente por error.
+  if (STATE.planStart) {
+    const today = new Date();
+    const planDate = new Date(STATE.planStart + 'T12:00:00');
+    const diffDays = Math.round((planDate - today) / (1000 * 60 * 60 * 24));
+    const isMonday = today.getDay() === 1;
+    if (isMonday && diffDays === 7) {
+      STATE.planStart = today.toISOString().split('T')[0];
+      saveState();
+    }
+  }
 }
 
 // ── Init ──────────────────────────────────────────────────────
@@ -128,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function getNextMonday() {
   const today = new Date();
   const day = today.getDay(); // 0=Dom, 1=Lun ... 6=Sáb
-  const daysUntilMonday = day === 1 ? 7 : (8 - day) % 7 || 7;
+  const daysUntilMonday = day === 1 ? 0 : (8 - day) % 7 || 7;
   const monday = new Date(today);
   monday.setDate(today.getDate() + daysUntilMonday);
   return monday.toISOString().split('T')[0];
@@ -164,7 +177,6 @@ function bootApp() {
   setupNav();
   renderInicio();
   renderPlan();
-  renderTests();
   renderPomodoroCounters();
   updateMasteryDisplay();
 }
@@ -178,7 +190,6 @@ function setupNav() {
       document.getElementById(btn.dataset.section).classList.add('active');
       if (btn.dataset.section === 'inicio') renderInicio();
       if (btn.dataset.section === 'teoria') renderTeoria();
-      if (btn.dataset.section === 'test') refreshTestSelector();
     });
   });
 }
@@ -258,15 +269,13 @@ function getDailyInfo() {
 function renderInicio() {
   document.getElementById('streak-val').textContent = STATE.streak || 0;
   document.getElementById('stat-streak').textContent = STATE.streak || 0;
-  document.getElementById('stat-tests').textContent = STATE.testHistory.length;
+  // "Módulos estudiados" — unique modules ever visited
+  const modulesViewed = STATE.modulesViewed ? STATE.modulesViewed.length : 0;
+  document.getElementById('stat-tests').textContent = modulesViewed;
   document.getElementById('stat-pomodoros').textContent = STATE.pomodorosTotal || 0;
-  if (STATE.testHistory.length > 0) {
-    const tQ = STATE.testHistory.reduce((a, t) => a + t.total, 0);
-    const tC = STATE.testHistory.reduce((a, t) => a + t.score, 0);
-    document.getElementById('stat-accuracy').textContent = Math.round(tC / tQ * 100) + '%';
-  } else {
-    document.getElementById('stat-accuracy').textContent = '—';
-  }
+  document.getElementById('stat-accuracy').textContent = STATE.completedDays.length > 0
+    ? Math.round((STATE.completedDays.length / 40) * 100) + '%'
+    : '—';
   renderTodayBriefing();
   renderPlanProgress();
   renderTopicPerformance();
@@ -339,75 +348,61 @@ function renderTheoryPlaceholder() {
   const el = document.getElementById('theory-content');
   if (!el) return;
 
-  if (typeof THEORY_CONTENT === 'undefined') {
-    el.innerHTML = '<div class="no-data">Teoría del día pendiente — se añadirá en theory.js</div>';
+  if (typeof THEORY_MODULES === 'undefined') {
+    el.innerHTML = '<div class="no-data">Cargando módulos...</div>';
     return;
   }
 
   const info = getCurrentWeekInfo();
-  if (!info || !info.week) {
-    el.innerHTML = '<div class="no-data">Sin teoría disponible hoy</div>';
-    return;
-  }
+  const weekIdx = (info && info.weekIndex >= 0) ? Math.min(info.weekIndex, THEORY_MODULES.length - 1) : 0;
+  const mod = THEORY_MODULES[weekIdx] || THEORY_MODULES[0];
+  const sec = mod.sections[0];
 
-  if (isWeekend(todayStr())) {
-    el.innerHTML = '<div class="no-data">Es fin de semana — descansa, operador.</div>';
-    return;
-  }
-
-  const wk = THEORY_CONTENT['week' + (info.weekIndex + 1)];
-  if (!wk || !wk.days) {
-    el.innerHTML = '<div class="no-data">Teoría de esta semana pendiente en theory.js</div>';
-    return;
-  }
-
-  // dayInWeek: 0=Lun,1=Mar,2=Mié,3=Jue,4=Vie
-  const dayIdx = Math.min(info.dayInWeek, 4);
-  const dayData = wk.days[dayIdx];
-
-  if (!dayData || !dayData.sections || dayData.sections.length === 0) {
-    el.innerHTML = '<div class="no-data">Sin contenido para hoy — se añadirá próximamente</div>';
-    return;
-  }
-
-  const dayNames = ['LUNES','MARTES','MIÉRCOLES','JUEVES','VIERNES'];
+  // Preview del módulo de la semana actual
   el.innerHTML = '';
 
-  // Badge con semana + día
-  const badge = document.createElement('div');
-  badge.className = 'theory-week-badge';
-  badge.innerHTML = `
-    <span class="theory-week-num">S${info.weekIndex + 1} · ${dayNames[dayIdx]}</span>
-    <span class="theory-week-theme">${dayData.label || info.week.theme}</span>
+  const hdr = document.createElement('div');
+  hdr.className = 'tv-module-header';
+  hdr.style.marginBottom = '12px';
+  hdr.innerHTML = `
+    <div class="tv-module-icon">${mod.icon}</div>
+    <div>
+      <div class="tv-module-num">MÓDULO ${mod.num} — SEMANA ${mod.week}</div>
+      <div class="tv-module-title">${mod.title}</div>
+      <div class="tv-module-subtitle">${mod.subtitle}</div>
+    </div>
   `;
-  el.appendChild(badge);
+  el.appendChild(hdr);
 
-  // Secciones del día como cards colapsables
-  dayData.sections.forEach((section, idx) => {
-    const card = document.createElement('div');
-    card.className = 'theory-card' + (idx === 0 ? ' open' : '');
+  if (sec) {
+    const prev = document.createElement('div');
+    prev.className = 'tv-section-content';
+    prev.style.cssText = 'max-height:220px;overflow:hidden;position:relative;';
+    prev.innerHTML = sec.content;
+    // Fade out bottom
+    const fade = document.createElement('div');
+    fade.style.cssText = 'position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(transparent, var(--bg2));';
+    prev.appendChild(fade);
+    el.appendChild(prev);
+  }
 
-    const rawContent = section.content || '';
-    const errorMatch = rawContent.match(/<p><strong>(Error frecuente[^<]*|Consejo[^<]*|El día del examen[^<]*|Mensaje del operador[^<]*|La Lotus habla[^<]*)<\/strong>:?\s*(.*?)<\/p>\s*$/s);
-    const examTip = errorMatch ? errorMatch[0] : '';
-    const mainContent = examTip ? rawContent.replace(examTip, '').trim() : rawContent;
+  const cta = document.createElement('div');
+  cta.className = 'teoria-cta';
+  cta.style.marginTop = '10px';
+  cta.innerHTML = `
+    <span class="teoria-cta-text">Ver los 7 módulos completos</span>
+    <button class="btn teal" id="ir-teoria-btn">▶ IR A TEORÍA</button>
+  `;
+  el.appendChild(cta);
 
-    card.innerHTML = `
-      <div class="theory-card-header">
-        <div class="theory-card-title">${section.title}</div>
-        <div class="theory-card-toggle">▼</div>
-      </div>
-      <div class="theory-card-body">
-        <div class="theory-card-content">${mainContent}</div>
-        ${examTip ? `<div class="theory-exam-tip">${examTip}</div>` : ''}
-      </div>
-    `;
-
-    card.querySelector('.theory-card-header').addEventListener('click', () => {
-      card.classList.toggle('open');
-    });
-
-    el.appendChild(card);
+  document.getElementById('ir-teoria-btn')?.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    const teoriaBtn = document.querySelector('[data-section="teoria"]');
+    const teoriaSection = document.getElementById('teoria');
+    if (teoriaBtn) teoriaBtn.classList.add('active');
+    if (teoriaSection) teoriaSection.classList.add('active');
+    renderTeoria(weekIdx, 0);
   });
 }
 
@@ -584,124 +579,86 @@ function showPomReward() {
 }
 
 // ── TEORÍA ────────────────────────────────────────────────────
-let teoriaSelectedDay = null; // null = today
+let teoriaActiveModule = 0;
+let teoriaActiveSection = 0;
 
-function renderTeoria(forceDayIdx) {
-  const info = getCurrentWeekInfo();
-  if (!info) return;
+function renderTeoria(moduleIdx, sectionIdx) {
+  if (typeof THEORY_MODULES === 'undefined') return;
+  if (moduleIdx !== undefined) teoriaActiveModule = moduleIdx;
+  if (sectionIdx !== undefined) teoriaActiveSection = sectionIdx;
 
-  const weekIndex = info.weekIndex;
-  const todayDayIdx = Math.min(info.dayInWeek, 4);
-  const selectedDay = forceDayIdx !== undefined ? forceDayIdx : (teoriaSelectedDay !== null ? teoriaSelectedDay : todayDayIdx);
-  teoriaSelectedDay = selectedDay;
-
-  // Week number
-  document.getElementById('teoria-week-num').textContent = weekIndex + 1;
-
-  const wk = typeof THEORY_CONTENT !== 'undefined' ? THEORY_CONTENT['week' + (weekIndex + 1)] : null;
-  const week = STUDY_PLAN.weeks[weekIndex];
-
-  // Week bar
-  const weekBar = document.getElementById('teoria-week-bar');
-  weekBar.innerHTML = '';
-  if (week) {
-    const bar = document.createElement('div');
-    bar.className = 'teoria-week-strip';
-    const topicIds = week.topics || TOPICS.map(t => t.id);
-    bar.innerHTML = `
-      <span class="teoria-week-label">${week.theme}</span>
-      <span class="teoria-week-topics">${topicIds.map(tid => {
-        const t = TOPICS.find(x => x.id === tid);
-        return t ? `<span>${t.icon} ${t.name}</span>` : '';
-      }).join('')}</span>
-    `;
-    weekBar.appendChild(bar);
+  // Track módulo visitado
+  if (!STATE.modulesViewed) STATE.modulesViewed = [];
+  const modId = THEORY_MODULES[teoriaActiveModule]?.id;
+  if (modId && !STATE.modulesViewed.includes(modId)) {
+    STATE.modulesViewed.push(modId);
+    saveState();
   }
 
-  // Day selector
-  const dayNames = ['LUNES','MARTES','MIÉRCOLES','JUEVES','VIERNES'];
-  const dayShort = ['L','M','X','J','V'];
-  const selector = document.getElementById('teoria-day-selector');
-  selector.innerHTML = '';
-  for (let d = 0; d < 5; d++) {
-    const dateStr = addDays(STATE.planStart, weekIndex * 7 + d);
-    const isFuture = dateStr > todayStr();
-    const isToday = d === todayDayIdx;
-    const isSelected = d === selectedDay;
+  const el = document.getElementById('teoria-content');
+  if (!el) return;
+  el.innerHTML = '';
+
+  // Module nav
+  const moduleNav = document.createElement('div');
+  moduleNav.className = 'teoria-module-nav';
+  THEORY_MODULES.forEach((mod, i) => {
     const btn = document.createElement('button');
-    btn.className = 'teoria-day-btn' +
-      (isSelected ? ' active' : '') +
-      (isToday ? ' today' : '') +
-      (isFuture ? ' future' : '') +
-      (d === 4 ? ' fri' : '');
-    btn.innerHTML = `<span class="tdb-short">${dayShort[d]}</span><span class="tdb-full">${dayNames[d]}</span>${d===4?'<span class="tdb-star">★</span>':''}`;
-    btn.addEventListener('click', () => renderTeoria(d));
-    selector.appendChild(btn);
-  }
-
-  // Content
-  const content = document.getElementById('teoria-content');
-  content.innerHTML = '';
-
-  if (!wk || !wk.days) {
-    content.innerHTML = '<div class="no-data">Teoría de esta semana pendiente en theory.js</div>';
-    return;
-  }
-
-  const dayData = wk.days[selectedDay];
-  if (!dayData || !dayData.sections || dayData.sections.length === 0) {
-    content.innerHTML = '<div class="no-data">Contenido de este día pendiente</div>';
-    return;
-  }
-
-  // Day header
-  const dayHeader = document.createElement('div');
-  dayHeader.className = 'teoria-day-header';
-  dayHeader.innerHTML = `
-    <div class="teoria-day-name">${dayNames[selectedDay]}</div>
-    <div class="teoria-day-label">${dayData.label || ''}</div>
-  `;
-  content.appendChild(dayHeader);
-
-  // Sections
-  dayData.sections.forEach((section, idx) => {
-    const card = document.createElement('div');
-    card.className = 'theory-card open';
-
-    const rawContent = section.content || '';
-    const errorMatch = rawContent.match(/<p><strong>(Error frecuente[^<]*|Consejo[^<]*|El día del examen[^<]*|Mensaje del operador[^<]*|La Lotus habla[^<]*)<\/strong>:?\s*(.*?)<\/p>\s*$/s);
-    const examTip = errorMatch ? errorMatch[0] : '';
-    const mainContent = examTip ? rawContent.replace(examTip, '').trim() : rawContent;
-
-    card.innerHTML = `
-      <div class="theory-card-header">
-        <div class="theory-card-title">${section.title}</div>
-        <div class="theory-card-toggle">▼</div>
-      </div>
-      <div class="theory-card-body">
-        <div class="theory-card-content">${mainContent}</div>
-        ${examTip ? `<div class="theory-exam-tip">${examTip}</div>` : ''}
-      </div>
+    btn.className = 'tm-btn' + (i === teoriaActiveModule ? ' active' : '');
+    btn.innerHTML = `
+      <div class="tm-btn-num">MÓDULO ${mod.num}</div>
+      <span class="tm-btn-icon">${mod.icon}</span>
+      <div class="tm-btn-title">${mod.title}</div>
     `;
-    card.querySelector('.theory-card-header').addEventListener('click', () => card.classList.toggle('open'));
-    content.appendChild(card);
+    btn.addEventListener('click', () => {
+      teoriaActiveSection = 0;
+      renderTeoria(i, 0);
+    });
+    moduleNav.appendChild(btn);
   });
+  el.appendChild(moduleNav);
 
-  // Bottom CTA — ir al test del día
-  const cta = document.createElement('div');
-  cta.className = 'teoria-cta';
-  cta.innerHTML = `
-    <div class="teoria-cta-text">¿Listo para poner a prueba lo aprendido?</div>
-    <button class="btn teal large" id="teoria-goto-test">▶ IR AL TEST DEL DÍA</button>
+  const mod = THEORY_MODULES[teoriaActiveModule];
+  if (!mod) return;
+
+  // Module header
+  const hdr = document.createElement('div');
+  hdr.className = 'tv-module-header';
+  hdr.innerHTML = `
+    <div class="tv-module-icon">${mod.icon}</div>
+    <div>
+      <div class="tv-module-num">MÓDULO ${mod.num} — SEMANA ${mod.week}</div>
+      <div class="tv-module-title">${mod.title}</div>
+      <div class="tv-module-subtitle">${mod.subtitle}</div>
+    </div>
   `;
-  content.appendChild(cta);
-  document.getElementById('teoria-goto-test').addEventListener('click', () => {
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.querySelector('[data-section="test"]').classList.add('active');
-    document.getElementById('test').classList.add('active');
-    refreshTestSelector();
-  });
+  el.appendChild(hdr);
+
+  // Section tabs
+  if (mod.sections.length > 1) {
+    const tabs = document.createElement('div');
+    tabs.className = 'tv-section-tabs';
+    mod.sections.forEach((sec, si) => {
+      const tab = document.createElement('button');
+      tab.className = 'tv-tab' + (si === teoriaActiveSection ? ' active' : '');
+      tab.textContent = sec.title;
+      tab.addEventListener('click', () => renderTeoria(teoriaActiveModule, si));
+      tabs.appendChild(tab);
+    });
+    el.appendChild(tabs);
+  }
+
+  // Section content
+  const sec = mod.sections[teoriaActiveSection] || mod.sections[0];
+  if (sec) {
+    const content = document.createElement('div');
+    content.className = 'tv-section-content';
+    content.innerHTML = sec.content;
+    el.appendChild(content);
+  }
+
+  // Scroll to top of section
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function renderTests() {
   buildTopicSelector();

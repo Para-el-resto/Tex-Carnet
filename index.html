@@ -48,7 +48,6 @@
     <button class="nav-btn" data-section="teoria">TEORÍA</button>
     <button class="nav-btn" data-section="plan">PLAN</button>
     <button class="nav-btn" data-section="pomodoro">FOCO</button>
-    <button class="nav-btn" data-section="test">TESTS</button>
   </nav>
 
   <main id="app-main">
@@ -65,11 +64,11 @@
         </div>
         <div class="stat-box">
           <div class="stat-value teal" id="stat-tests">0</div>
-          <div class="stat-label">Misiones completadas</div>
+          <div class="stat-label">Módulos estudiados</div>
         </div>
         <div class="stat-box">
           <div class="stat-value" id="stat-accuracy">—</div>
-          <div class="stat-label">Sincronía</div>
+          <div class="stat-label">Plan completado</div>
         </div>
         <div class="stat-box">
           <div class="stat-value teal" id="stat-pomodoros">0</div>
@@ -104,24 +103,14 @@
 
       <div class="panel">
         <div class="panel-title">▣ TEORÍA DE HOY</div>
-        <div id="theory-content">
-          <div class="no-data">Teoría del día pendiente — se añadirá en theory.js</div>
-        </div>
+        <div id="theory-content"></div>
       </div>
     </section>
 
     <!-- ══ TEORÍA ═══════════════════════════════════════════ -->
     <section id="teoria" class="section">
       <div class="section-header">TEORÍA</div>
-      <div class="section-sub">◈ LECCIÓN DEL DÍA — SEMANA <span id="teoria-week-num">1</span></div>
-
-      <!-- Day selector -->
-      <div class="teoria-day-selector" id="teoria-day-selector"></div>
-
-      <!-- Week theme bar -->
-      <div class="teoria-week-bar" id="teoria-week-bar"></div>
-
-      <!-- Lesson content -->
+      <div class="section-sub">◈ 7 MÓDULOS DGT — CONTENIDO COMPLETO</div>
       <div id="teoria-content"></div>
     </section>
     <section id="plan" class="section">
@@ -131,7 +120,7 @@
       <div class="plan-info-bar">
         <div class="plan-info-text">
           Inicio del plan: <strong id="plan-start-info">—</strong>
-          &nbsp;·&nbsp; Los viernes (★) son test semanales
+          &nbsp;·&nbsp; Viernes (★) = repaso semanal
           &nbsp;·&nbsp; Los días futuros no se pueden marcar
         </div>
         <button class="btn small red" id="plan-reset-btn">↺ RESETEAR PROGRESO</button>
@@ -288,7 +277,6 @@
 
   </main>
 
-  <script src="data.js"></script>
   <script src="theory.js"></script>
   <script src="app.js"></script>
 </body>
