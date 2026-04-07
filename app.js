@@ -742,7 +742,6 @@ function renderTeoria(moduleIdx, sectionIdx) {
   if (moduleIdx !== undefined) teoriaActiveModule = moduleIdx;
   if (sectionIdx !== undefined) teoriaActiveSection = sectionIdx;
 
-  // Track módulo visitado
   if (!STATE.modulesViewed) STATE.modulesViewed = [];
   const modId = THEORY_MODULES[teoriaActiveModule]?.id;
   if (modId && !STATE.modulesViewed.includes(modId)) {
@@ -753,64 +752,54 @@ function renderTeoria(moduleIdx, sectionIdx) {
   const el = document.getElementById('teoria-content');
   if (!el) return;
 
-  // Construye el layout Codex completo
   const mod = THEORY_MODULES[teoriaActiveModule];
   const sec = mod?.sections[teoriaActiveSection] || mod?.sections[0];
   const viewed = STATE.modulesViewed || [];
 
+  // Sidebar: módulos + secciones del activo anidadas debajo
+  const sidebarHTML = THEORY_MODULES.map((m, i) => {
+    const isActive = i === teoriaActiveModule;
+    const isVisited = viewed.includes(m.id);
+    const subsHTML = isActive ? `<div class="codex-sections">` +
+      m.sections.map((s, si) => `
+        <div class="codex-sub${si === teoriaActiveSection ? ' active' : ''}" data-mod="${i}" data-si="${si}">
+          <span class="codex-sub-num">${String(si + 1).padStart(2,'0')}</span>
+          <span class="codex-sub-title">${s.title}</span>
+        </div>`).join('') + `</div>` : '';
+    return `
+      <div class="codex-entry${isActive ? ' active' : ''}${isVisited ? ' visited' : ''}" data-mod="${i}">
+        <span class="codex-entry-num">0${m.num}</span>
+        <span class="codex-entry-icon">${m.icon}</span>
+        <span class="codex-entry-name">${m.title}</span>
+        ${isVisited && !isActive ? '<span class="codex-entry-tick">✓</span>' : ''}
+      </div>${subsHTML}`;
+  }).join('');
+
   el.innerHTML = `
     <div class="teoria-codex">
-      <!-- Sidebar -->
       <div class="codex-sidebar">
         <div class="codex-sidebar-title">CÓDICE DGT</div>
-        ${THEORY_MODULES.map((m, i) => {
-          const isActive = i === teoriaActiveModule;
-          const isVisited = viewed.includes(m.id);
-          return `<div class="codex-entry${isActive ? ' active' : ''}${isVisited ? ' visited' : ''}" data-mod="${i}">
-            <span class="codex-entry-num">0${m.num}</span>
-            <span class="codex-entry-icon">${m.icon}</span>
-            <span class="codex-entry-name">${m.title}</span>
-            ${isVisited && !isActive ? '<span class="codex-entry-tick">✓</span>' : ''}
-          </div>`;
-        }).join('')}
+        ${sidebarHTML}
       </div>
-
-      <!-- Content -->
       <div class="codex-content">
         <div class="codex-module-header">
-          <div class="codex-module-tag">MÓDULO ${mod.num} — SEMANA ${mod.week}</div>
+          <div class="codex-module-tag">MÓDULO ${mod.num} — ${sec?.title || ''}</div>
           <div class="codex-module-title">${mod.title}</div>
           <div class="codex-module-sub">${mod.subtitle}</div>
         </div>
-
-        ${mod.sections.length > 1 ? `
-        <div class="codex-section-tabs">
-          ${mod.sections.map((s, si) =>
-            `<button class="codex-tab${si === teoriaActiveSection ? ' active' : ''}" data-si="${si}">${s.title}</button>`
-          ).join('')}
-        </div>` : ''}
-
-        <div class="codex-section-body">
-          ${sec ? sec.content : ''}
-        </div>
+        <div class="codex-section-body">${sec ? sec.content : ''}</div>
       </div>
-    </div>
-  `;
+    </div>`;
 
-  // Eventos sidebar
-  el.querySelectorAll('.codex-entry').forEach(entry => {
-    entry.addEventListener('click', () => {
-      teoriaActiveSection = 0;
-      renderTeoria(parseInt(entry.dataset.mod), 0);
-    });
-  });
-
-  // Eventos tabs
-  el.querySelectorAll('.codex-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      renderTeoria(teoriaActiveModule, parseInt(tab.dataset.si));
-    });
-  });
+  el.querySelectorAll('.codex-entry').forEach(e =>
+    e.addEventListener('click', () => renderTeoria(parseInt(e.dataset.mod), 0))
+  );
+  el.querySelectorAll('.codex-sub').forEach(s =>
+    s.addEventListener('click', ev => {
+      ev.stopPropagation();
+      renderTeoria(parseInt(s.dataset.mod), parseInt(s.dataset.si));
+    })
+  );
 }
 function renderTests() {
   buildTopicSelector();
