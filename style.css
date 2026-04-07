@@ -1766,3 +1766,17 @@ body::before {
 .teoria-codex {
   grid-template-columns: 230px 1fr;
 }
+
+/* Sidebar siempre muestra todas las secciones */
+.codex-sections { display: block; }
+.codex-sections.open { display: block; }
+
+/* Sidebar scrollable cuando hay mucho contenido */
+.codex-sidebar {
+  overflow-y: auto;
+  max-height: 80vh;
+}
+
+/* Módulo activo resaltado más limpio */
+.codex-entry.active .codex-entry-name { color: var(--gold); }
+.codex-entry.active { background: rgba(200,155,60,0.07); }
